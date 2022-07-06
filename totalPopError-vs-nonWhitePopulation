@@ -29,4 +29,4 @@ range(totalErrorPerc)
 
 plot(x = nonWhiteSF, y = totalError, xlab = "Percent non-White", ylab = "Error in total population counts", col = "blue", pch = ".")
 
-ggplot(data = raceOver18, aes(x = nonWhiteSF, y = totalError)) + geom_point(alpha = 0.1, color = "blue", size = 1) + geom_smooth(color = "black")
+ggplot(data = raceOver18, aes(x = nonWhiteSF, y = totalError)) + geom_point(alpha = 0.1, color = "blue", size = 1) + geom_smooth(color = "black") + ggtitle("Census Tracts") + xlab("Total Population Count Error") + ylab("Percent non-White")
