@@ -1,0 +1,35 @@
+#--Set up--------------------------------------------------------------------
+setwd("/Users/AnnaYuexinZhang/Documents/Rutgers/Work/2022 Summer Project SUPER")
+allcountydata_122<-read.csv('./Vintage210428_122_County/nhgis_ppdd_20210428_12-2_county.csv')
+library(dplyr)
+library(gam)
+library(tibble)
+
+#--Vacancy Rate ---------------------------------------------
+calicounty_vrsf<- allcountydata_122 %>%
+  select(name,state,IFE001_sf,IFE002_sf,IFE003_sf) %>%
+  rename( total_vrsf=IFE001_sf, 
+         occupied_vrsf=IFE002_sf,vacant_vrsf=IFE003_sf) %>%
+  mutate(vacancyrate_sf=vacant_vrsf/total_vrsf,
+         occupancyrate_sf=occupied_vrsf/total_vrsf,
+         .before=total_vrsf) %>%
+  filter(state == "6")
+
+calicounty_vrdp<- allcountydata_122 %>%
+  select(name,state,IFE001_dp,IFE002_dp,IFE003_dp) %>%
+  rename( total_vrdp=IFE001_dp,
+         occupied_vrdp=IFE002_dp,vacant_vrdp=IFE003_dp) %>%
+  mutate(vacancyrate_dp=vacant_vrdp/total_vrdp,
+         occupancyrate_dp=occupied_vrdp/total_vrdp,
+         .before=total_vrdp) %>%
+  filter(state == "6")
+
+calicounty_vr<- left_join(calicounty_vrsf,calicounty_vrdp, by='name') %>%
+  mutate(vacancyrate_diff=vacancyrate_sf-vacancyrate_dp,
+         occupancyrate_diff=occupancyrate_sf-occupancyrate_dp,
+         .after=name)
+
+calicounty_vr_clear <- calicounty_vr %>%
+    select (name,vacancyrate_diff,vacancyrate_sf,vacancyrate_dp) %>%
+    mutate(vacancyrate_perdiff = vacancyrate_diff*100)%>%
+    arrange(desc(vacancyrate_perdiff))
