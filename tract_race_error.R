@@ -1,10 +1,4 @@
 library(here)
-library(tidyverse)
-library(scales)
-library(redist)
-library(patchwork)
-library(sf)
-library(mgcv)
 
 # load helpers ----
 source(here("R/00_custom_functions.R"))
