@@ -59,3 +59,9 @@ stat_hhi<- left_join(stats_hhisf,stats_hhidp, by='countycode') %>%
 
 #--Join Data Frame--------------------------------------------------------
 stat_vrhhi <- left_join(stat_hhi, stat_vr, by='countycode')
+
+#--Fit model and Plot----------------------------------------------
+mod2<-gam(ytest ~  s(x1test), data= stat_vrhhi)
+plot(mod2,lwd=2.0,col="blue",
+     ylab = "occupancyrate_difference",
+     xlab = "HHI index")
