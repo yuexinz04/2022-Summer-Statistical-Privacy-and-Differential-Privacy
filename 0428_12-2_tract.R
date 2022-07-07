@@ -1,0 +1,32 @@
+library(tidyverse)
+
+raceOver18 <- read.csv("nhgis_ppdd_20210428_12-2_tract.csv")
+
+totalDP = raceOver18$H74001_dp
+totalSF = raceOver18$H74001_sf
+
+totalError = totalDP-totalSF
+
+whiteDP = raceOver18$H74003_dp
+whiteSF = raceOver18$H74003_sf
+
+nonWhiteDP = (totalDP - whiteDP)/totalDP
+nonWhiteSF = (totalSF - whiteSF)/totalSF
+
+head(whiteDP)
+head(whiteSF)
+
+#whiteError = (whiteDP-whiteSF)/whiteSF
+#head(whiteError)
+
+#whiteErrorRange = range(whiteError)
+#whiteErrorRange
+
+boxplot(whiteError, main = "Error in white population counts at the Census Tract level", ylim = c(-1,1))
+
+totalErrorPerc = na.omit(totalErrorPerc)
+range(totalErrorPerc)
+
+plot(x = nonWhiteSF, y = totalError, xlab = "Percent non-White", ylab = "Error in total population counts", col = "blue", pch = ".")
+
+ggplot(data = raceOver18, aes(x = nonWhiteSF, y = totalError)) + geom_point(alpha = 0.1, color = "blue", size = 1) + geom_smooth(color = "black") + ggtitle("Census Tracts") + xlab("Percent non-White") + ylab("Total Population Count Error")
