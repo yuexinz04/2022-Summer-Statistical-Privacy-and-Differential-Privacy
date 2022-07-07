@@ -1,0 +1,61 @@
+allcountydata_122<-read.csv('./Vintage210428_122_County/nhgis_ppdd_20210428_12-2_county.csv')
+library(dplyr)
+library(gam)
+library(tibble)
+
+#--Vacancy Rate & Occupancy Rate---------------------------------------------
+stats_vrsf<- allcountydata_122 %>%
+  select(gisjoin,IFE001_sf,IFE002_sf,IFE003_sf) %>%
+  rename(countycode=gisjoin, total_vrsf=IFE001_sf, 
+         occupied_vrsf=IFE002_sf,vacant_vrsf=IFE003_sf) %>%
+  mutate(vacancyrate_sf=vacant_vrsf/total_vrsf,
+         occupancyrate_sf=occupied_vrsf/total_vrsf,
+        .before=total_vrsf)
+  
+stats_vrdp<- allcountydata_122 %>%
+  select(gisjoin,IFE001_dp,IFE002_dp,IFE003_dp) %>%
+  rename(countycode=gisjoin, total_vrdp=IFE001_dp,
+         occupied_vrdp=IFE002_dp,vacant_vrdp=IFE003_dp) %>%
+  mutate(vacancyrate_dp=vacant_vrdp/total_vrdp,
+         occupancyrate_dp=occupied_vrdp/total_vrdp,
+         .before=total_vrdp)
+
+stat_vr<- left_join(stats_vrsf,stats_vrdp, by='countycode') %>%
+  mutate(vacancyrate_diff=vacancyrate_sf-vacancyrate_dp,
+         occupancyrate_diff=occupancyrate_sf-occupancyrate_dp,
+         .after=countycode)
+
+#--Herfindahl-Hirschman Index-----------------------------------------------
+stats_hhisf <- allcountydata_122 %>%
+  select(gisjoin,H72002_sf,H72003_sf,H72003_sf,H72004_sf,H72005_sf,
+         H72006_sf,H72007_sf,H72008_sf) %>%
+  rename(countycode=gisjoin, popoONErace_sf = H72002_sf, popWhite_sf = H72003_sf,
+         popBAA_sf = H72004_sf, popAIAN_sf = H72005_sf , popAsian_sf = H72006_sf,
+         popNHOPI_sf = H72007_sf, popOther_sf = H72008_sf ) %>%
+  mutate(s_whitesf = popWhite_sf/popoONErace_sf,
+         s_BAAsf = popBAA_sf/popoONErace_sf,
+         s_AIANsf = popAIAN_sf/popoONErace_sf,
+         s_Asiansf = popAsian_sf/popoONErace_sf,
+         s_NHOPIsf = popNHOPI_sf/popoONErace_sf,
+         s_othersf = popOther_sf/popoONErace_sf)%>%
+  mutate (hhi_sf=s_whitesf^2+s_BAAsf^2+s_AIANsf^2+s_Asiansf^2+s_NHOPIsf^2+s_othersf^2,.after=countycode)
+
+stats_hhidp <- allcountydata_122 %>%
+  select(gisjoin,H72002_dp,H72003_dp,H72003_dp,H72004_dp,H72005_dp,
+         H72006_dp,H72007_dp,H72008_dp) %>%
+  rename(countycode=gisjoin, popoONErace_dp = H72002_dp, popWhite_dp = H72003_dp,
+         popBAA_dp = H72004_dp, popAIAN_dp = H72005_dp , popAsian_dp = H72006_dp,
+         popNHOPI_dp = H72007_dp, popOther_dp = H72008_dp ) %>%
+  mutate(s_whitedp = popWhite_dp/popoONErace_dp,
+         s_BAAdp = popBAA_dp/popoONErace_dp,
+         s_AIANdp = popAIAN_dp/popoONErace_dp,
+         s_Asiandp = popAsian_dp/popoONErace_dp,
+         s_NHOPIdp = popNHOPI_dp/popoONErace_dp,
+         s_otherdp = popOther_dp/popoONErace_dp)%>%
+  mutate (hhi_dp=s_whitedp^2+s_BAAdp^2+s_AIANdp^2+s_Asiandp^2+s_NHOPIdp^2+s_otherdp^2,.after=countycode)
+
+stat_hhi<- left_join(stats_hhisf,stats_hhidp, by='countycode') %>%
+  mutate (hhi_diff = hhi_sf - hhi_dp,.after=countycode)
+
+#--Join Data Frame--------------------------------------------------------
+stat_vrhhi <- left_join(stat_hhi, stat_vr, by='countycode')
