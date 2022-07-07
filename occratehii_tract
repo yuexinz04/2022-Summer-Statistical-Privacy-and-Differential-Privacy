@@ -62,9 +62,14 @@ tract_hhi<- left_join(tract_hhisf,tract_hhidp, by='countycode') %>%
 #--Join Data Frame--------------------------------------------------------
 tract_vrhhi <- left_join(tract_hhi, tract_vr, by='countycode')%>%
   mutate (x1test=hhi_sf*100,
-          ytest =occupancyrate_diff*100 ) %>%
-  drop_na()
-range(tract_vrhhi$ytest)
+          ytest =occupancyrate_diff*100 )
+
+clean_tract_vehhi<-as(tract_vrhhi,"data.frame") %>%
+  filter(!is.na(ytest))%>%
+  arrange(desc(ytest))
+
+range(clean_tract_vehhi$ytest)
+# -100,100
 
 #--Fit model and Plot----------------------------------------------
 mod2<-gam(ytest ~  s(x1test), data= tract_vrhhi)
