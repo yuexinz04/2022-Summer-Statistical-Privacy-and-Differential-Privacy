@@ -65,14 +65,18 @@ tract_vrhhi <- left_join(tract_hhi, tract_vr, by='countycode')%>%
           ytest =occupancyrate_diff*100 )
 
 clean_tract_vehhi<-as(tract_vrhhi,"data.frame") %>%
-  filter(!is.na(ytest))%>%
-  arrange(desc(ytest))
+  filter(!is.na(ytest), !is.na(x1test))
 
 range(clean_tract_vehhi$ytest)
 # -100,100
 
 #--Fit model and Plot----------------------------------------------
-mod2<-gam(ytest ~  s(x1test), data= tract_vrhhi)
-plot(mod2,lwd=2.0,col="blue",
-     ylab = "occupancyrate_difference",
-     xlab = "HHI index")
+mod_orhhi_tract<-gam(ytest ~  s(x1test), data= clean_tract_vehhi)
+fit_orhhi_tract<-fitted(mod_orhhi_tract)
+range(fit_orhhi_tract)
+plot(fit_orhhi_tract ~ clean_tract_vehhi$x1test,
+     ylab = "Fitted Occupancy Rate Difference",
+     xlab = "Herfindahl-Hirschman Index",
+     main= "Model-smoothed Occupancy Rate Error in Tract level by the Herfindahl-Hirschman index",
+     cex.main=0.8) 
+
