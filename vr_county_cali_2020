@@ -33,3 +33,7 @@ calicounty_vr_clear <- calicounty_vr %>%
     select (name,vacancyrate_diff,vacancyrate_sf,vacancyrate_dp) %>%
     mutate(vacancyrate_perdiff = vacancyrate_diff*100)%>%
     arrange(desc(vacancyrate_perdiff))
+
+range_percentaediff<- range(calicounty_vr_clear$vacancyrate_perdiff)
+range_percentaediff
+# [1] -0.8522727  0.4559271
