@@ -1,5 +1,5 @@
 
-# Goal for Task 02 --> gam (error ~ s(white)) --> use fitted(m) as error -> produce non white plot only
+# Goal for Task 05 --> gam (error ~ s(white)) --> use true diff as error -> produce non white plot only
 # Only make modifications on the following parts.
 # Others remain unchanged!!!
 
