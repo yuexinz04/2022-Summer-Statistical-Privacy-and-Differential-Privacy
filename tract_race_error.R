@@ -1,189 +1,180 @@
 library(tidyverse)
+library(ggplot2)
+library(ggpubr)
 library(scales)
 library(redist)
 library(patchwork)
 library(sf)
 library(mgcv)
-library(ggplot2)
+theme_set(theme_pubr())
 
-# load helpers ----
-source("...dataverse_files/R/00_custom_functions.R")
+source(".../dataverse_files/R/00_custom_functions.R")
 
-tract_data = read_csv("...nhgis_ppdd_20210428_12-2_tract/nhgis_ppdd_20210428_12-2_tract.csv")
-
-
-dp_total = tract_data[,4]
-dp_white = tract_data[,6]
-dp_nonwhite = dp_total - dp_white
-percent_nonwhite = 100*(dp_nonwhite/dp_total)
-sf_total = tract_data[,305]
-
-dp_total[1,]              # 1928
-dp_white[1,]              # 1618
-dp_nonwhite[1,]           # 310
-percent_nonwhite[1,]      # 16.079
-sf_total[1,]              # 1912
-
-error = dp_total - sf_total
+tract_data = read_csv(".../nhgis_ppdd_20210428_12-2_tract/nhgis_ppdd_20210428_12-2_tract.csv")
 
 
-# checked
-al_data = tract_data[1:1181,]
-al_data[1,4]
-al_percent_nonwhite = percent_nonwhite[1:1181,]
-al_error = error[1:1181,]
-
-al_percent_nonwhite[1]    # 16.079
-al_percent_nonwhite[1181] # 4.906
-al_error[1]               # 16
-al_error[1181]            # 23
-
-al_graph <- ggplot(al_data, aes(x = al_percent_nonwhite, y = al_error, color = al_error)) +
-  geom_point() + labs(x = "Percent Non-White", y = "Error (people)") +
-  stat_smooth(method = "lm",
-              col = "#4e0707",
-              se = FALSE,
-              size = 1)
-al_graph
-ggsave("...nhgis_ppdd_20210428_12-2_tract/figs/al.pdf", width=7.2, height=5.5)
+race_df <- tract_data %>%
+  select(gisjoin, H72001_dp, H72003_dp, H72001_sf, H74001_sf) %>%
+  rename(countycode = gisjoin, dp_total = H72001_dp, dp_white = H72003_dp, 
+         sf_total = H72001_sf, sf_old = H74001_sf) %>%
+  mutate(percent_nonwhite = 100 * (dp_total - dp_white) / dp_total,
+         error = dp_total - sf_total, percent_old = 100 * (sf_old/sf_total))
 
 
-# checked
-de_data = tract_data[13700:13917,]
-de_percent_nonwhite = percent_nonwhite[13700:13917,]
-de_error = error[13700:13917,]
+# al
+al_data = race_df[1:1181,]
 
-de_percent_nonwhite[1]    # 13.153
-de_percent_nonwhite[218]  # NaN
-de_error[1]               # 5
-de_error[218]             # 0
+al_race_graph <- ggplot(al_data, aes(x = percent_nonwhite, y = error, color = percent_old)) +
+  geom_point(alpha = .6) + 
+  labs(x = "Percent Non-White", y = "Error (people)", color="Population") +
+  geom_hline(yintercept=0, lty="dashed") + 
+  scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
+  scale_color_viridis_c(option="A", labels = percent, begin = .3) +
+  scale_x_continuous(limits = c(0,100), labels=comma,expand=expansion(mult=0)) +
+  scale_y_continuous(limits=c(-80, 80), expand=expansion(mult=0)) + 
+  geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222",
+  size = 1.5, se = FALSE, alpha = 0.5)
 
-de_graph <- ggplot(de_data, aes(x = de_percent_nonwhite, y = de_error, color = de_error)) +
-  geom_point() + labs(x = "Percent Non-White", y = "Error (people)") +
-  stat_smooth(method = "lm",
-              col = "#4e0707",
-              se = FALSE,
-              size = 1)
-de_graph
-ggsave("...nhgis_ppdd_20210428_12-2_tract/figs/de.pdf", width=7.2, height=5.5)
-
-
-# checked
-la_data = tract_data[28304:29451,]
-la_percent_nonwhite = percent_nonwhite[28304:29451,]
-la_error = error[28304:29451,]
-
-la_percent_nonwhite[1]    # 33.893
-la_percent_nonwhite[1148] # 53.991
-la_error[1]               # 36
-la_error[1148]            # -10
-
-la_graph <- ggplot(la_data, aes(x = la_percent_nonwhite, y = la_error, color = la_error)) +
-  geom_point() + labs(x = "Percent Non-White", y = "Error (people)") +
-  stat_smooth(method = "lm",
-              col = "#000000",
-              se = FALSE,
-              size = 1)
-la_graph
-ggsave("...nhgis_ppdd_20210428_12-2_tract/figs/la.pdf", width=7.2, height=5.5)
+# "limits = 0:1" causing issues
+  
+al_race_graph
+ggsave(".../nhgis_ppdd_20210428_12-2_tract/figs/al_race_graph.pdf", width=7.2, height=5.5)
 
 
-# checked
-nc_data = tract_data[48115:50309,]
-nc_percent_nonwhite = percent_nonwhite[48115:50309,]
-nc_error = error[48115:50309,]
+# de
+de_data = race_df[13700:13917,]
 
-nc_percent_nonwhite[1]    # 31.767
-nc_percent_nonwhite[2195] # 2.880
-nc_error[1]               # -36
-nc_error[2195]            # 1
+de_race_graph <- ggplot(de_data, aes(x = percent_nonwhite, y = error, color = percent_old)) +
+  geom_point(alpha = .6) + 
+  labs(x = "Percent Non-White", y = "Error (people)") + 
+  geom_hline(yintercept=0, lty="dashed") + 
+  scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
+  scale_color_viridis_c(option="A", labels = percent, begin = .3) +
+  scale_x_continuous(labels=comma,expand=expansion(mult=0)) +
+  scale_y_continuous(limits=c(-80, 80), expand=expansion(mult=0)) + 
+  geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222",
+            size = 1.5, se = FALSE, alpha = 0.5)
 
-nc_graph <- ggplot(nc_data, aes(x = nc_percent_nonwhite, y = nc_error, color = nc_error)) +
-  geom_point() + labs(x = "Percent Non-White", y = "Error (people)") +
-  stat_smooth(method = "lm",
-              col = "#000000",
-              se = FALSE,
-              size = 1)
-nc_graph
-ggsave("...nhgis_ppdd_20210428_12-2_tract/figs/nc.pdf", width=7.2, height=5.5)
+de_race_graph
+ggsave(".../nhgis_ppdd_20210428_12-2_tract/figs/de_race_graph.pdf", width=7.2, height=5.5)
 
 
-# checked
-pa_data = tract_data[55347:58564,]
-pa_percent_nonwhite = percent_nonwhite[55347:58564,]
-pa_error = error[55347:58564,]
 
-pa_percent_nonwhite[1]    # 4.045
-pa_percent_nonwhite[3218] # 3.005
-pa_error[1]               # 16
-pa_error[3218]            # 10
+#la
+la_data = race_df[28304:29451,]
 
-pa_graph <- ggplot(pa_data, aes(x = pa_percent_nonwhite, y = pa_error, color = pa_error)) +
-  geom_point() + labs(x = "Percent Non-White", y = "Error (people)") +
-  stat_smooth(method = "lm",
-              col = "#000000",
-              se = FALSE,
-              size = 1)
-pa_graph
-ggsave("...nhgis_ppdd_20210428_12-2_tract/figs/pa.pdf", width=7.2, height=5.5)
+la_race_graph <- ggplot(la_data, aes(x = percent_nonwhite, y = error, color = percent_old)) +
+  geom_point(alpha = .6) + 
+  labs(x = "Percent Non-White", y = "Error (people)") + 
 
+  geom_hline(yintercept=0, lty="dashed") + 
+  scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
+  scale_color_viridis_c(option="A", labels = percent, begin = .3) +
+  scale_x_continuous(labels=comma,expand=expansion(mult=0)) +
+  scale_y_continuous(limits=c(-80, 80), expand=expansion(mult=0)) + 
+  geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222",
+            size = 1.5, se = FALSE, alpha = 0.5)
 
-# checked
-sc_data = tract_data[58809:59911,]
-sc_percent_nonwhite = percent_nonwhite[58809:59911,]
-sc_error = error[58809:59911,]
-
-sc_percent_nonwhite[1]    # 14.434
-sc_percent_nonwhite[1103] # 15.541
-sc_error[1]               # 16
-sc_error[1103]            # -7
-
-sc_graph <- ggplot(sc_data, aes(x = sc_percent_nonwhite, y = sc_error, color = sc_error)) +
-  geom_point() + labs(x = "Percent Non-White", y = "Error (people)") +
-  stat_smooth(method = "lm",
-              col = "#000000",
-              se = FALSE,
-              size = 1)
-sc_graph
-ggsave("...nhgis_ppdd_20210428_12-2_tract/figs/sc.pdf", width=7.2, height=5.5)
+la_race_graph
+ggsave(".../nhgis_ppdd_20210428_12-2_tract/figs/la_race_graph.pdf", width=7.2, height=5.5)
 
 
-# checked
-ut_data = tract_data[66896:67483,]
-ut_percent_nonwhite = percent_nonwhite[66896:67483,]
-ut_error = error[66896:67483,]
 
-ut_percent_nonwhite[1]    # 10.752
-ut_percent_nonwhite[588]  # 7.237
-ut_error[1]               # -14
-ut_error[588]             # -64
+# nc
+nc_data = race_df[48115:50309,]
 
-ut_graph <- ggplot(ut_data, aes(x = ut_percent_nonwhite, y = ut_error, color = ut_error)) +
-  geom_point() + labs(x = "Percent Non-White", y = "Error (people)") +
-  stat_smooth(method = "lm",
-              col = "#000000",
-              se = FALSE,
-              size = 1)
-ut_graph
-ggsave("...nhgis_ppdd_20210428_12-2_tract/figs/ut.pdf", width=7.2, height=5.5)
+nc_race_graph <- ggplot(nc_data, aes(x = percent_nonwhite, y = error, color = percent_old)) +
+  geom_point(alpha = .6) + 
+  labs(x = "Percent Non-White", y = "Error (people)") + 
+  geom_hline(yintercept=0, lty="dashed") + 
+  scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
+  scale_color_viridis_c(option="A", labels = percent, begin = .3) +
+  scale_x_continuous(labels=comma,expand=expansion(mult=0)) +
+  scale_y_continuous(limits=c(-80, 80), expand=expansion(mult=0)) + 
+  geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222",
+            size = 1.5, se = FALSE, alpha = 0.5)
+
+nc_race_graph
+ggsave(".../nhgis_ppdd_20210428_12-2_tract/figs/nc_race_graph.pdf", width=7.2, height=5.5)
 
 
-# checked
-wa_data = tract_data[69575:71032,]
-wa_percent_nonwhite = percent_nonwhite[69575:71032,]
-wa_error = error[69575:71032,]
 
-wa_percent_nonwhite[1]    # 6.832
-wa_percent_nonwhite[1458] # 71.367
-wa_error[1]               # 56
-wa_error[1458]            # 47
+# pa
+pa_data = race_df[55347:58564,]
 
-wa_graph <- ggplot(wa_data, aes(x = wa_percent_nonwhite, y = wa_error, color = wa_error)) +
-  geom_point() + labs(x = "Percent Non-White", y = "Error (people)") +
-  stat_smooth(method = "lm",
-              col = "#000000",
-              se = FALSE,
-              size = 1)
-wa_graph
-ggsave("...nhgis_ppdd_20210428_12-2_tract/figs/wa.pdf", width=7.2, height=5.5)
+pa_race_graph <- ggplot(pa_data, aes(x = percent_nonwhite, y = error, color = percent_old)) +
+  geom_point(alpha = .6) + 
+  labs(x = "Percent Non-White", y = "Error (people)") + 
+  geom_hline(yintercept=0, lty="dashed") + 
+  scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
+  scale_color_viridis_c(option="A", labels = percent, begin = .3) +
+  scale_x_continuous(labels=comma,expand=expansion(mult=0)) +
+  scale_y_continuous(limits=c(-80, 80), expand=expansion(mult=0)) + 
+  geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222",
+            size = 1.5, se = FALSE, alpha = 0.5)
 
+pa_race_graph
+ggsave(".../nhgis_ppdd_20210428_12-2_tract/figs/pa_race_graph.pdf", width=7.2, height=5.5)
+
+
+
+# sc
+sc_data = race_df[58809:59911,]
+
+sc_race_graph <- ggplot(sc_data, aes(x = percent_nonwhite, y = error, color = percent_old)) +
+  geom_point(alpha = .6) + labs(x = "Percent Non-White", y = "Error (people)") + 
+  geom_hline(yintercept=0, lty="dashed") + 
+  scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
+  scale_color_viridis_c(option="A", labels = percent, begin = .3) +
+  scale_x_continuous(labels=comma,expand=expansion(mult=0)) +
+  scale_y_continuous(limits=c(-80, 80), expand=expansion(mult=0)) + 
+  geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222",
+            size = 1.5, se = FALSE, alpha = 0.5)
+
+sc_race_graph
+ggsave(".../nhgis_ppdd_20210428_12-2_tract/figs/sc_race_graph.pdf", width=7.2, height=5.5)
+
+
+
+# ut
+ut_data = race_df[66896:67483,]
+
+ut_race_graph <- ggplot(ut_data, aes(x = percent_nonwhite, y = error, color = percent_old)) +
+  geom_point(alpha = .6) + 
+  labs(x = "Percent Non-White", y = "Error (people)") + 
+  geom_hline(yintercept=0, lty="dashed") + 
+  scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
+  scale_color_viridis_c(option="A", labels = percent, begin = .3) +
+  scale_x_continuous(labels=comma,expand=expansion(mult=0)) +
+  scale_y_continuous(limits=c(-80, 80), expand=expansion(mult=0)) + 
+  geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222",
+            size = 1.5, se = FALSE, alpha = 0.5)
+
+ut_race_graph
+ggsave(".../nhgis_ppdd_20210428_12-2_tract/figs/ut_race_graph.pdf", width=7.2, height=5.5)
+
+
+# wa
+wa_data = race_df[69575:71032,]
+
+wa_race_graph <- ggplot(wa_data, aes(x = percent_nonwhite, y = error, color = percent_old)) +
+  geom_point(alpha = .6) + 
+  labs(x = "Percent Non-White", y = "Error (people)") + 
+  geom_hline(yintercept=0, lty="dashed") + 
+  scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
+  scale_color_viridis_c(option="A", labels = percent, begin = .3) +
+  scale_x_continuous(labels=comma,expand=expansion(mult=0)) +
+  scale_y_continuous(limits=c(-80, 80), expand=expansion(mult=0)) + 
+  geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222",
+            size = 1.5, se = FALSE, alpha = 0.5)
+
+wa_race_graph
+ggsave(".../nhgis_ppdd_20210428_12-2_tract/figs/wa_race_graph.pdf", width=7.2, height=5.5)
+
+
+
+race_figure <- ggarrange(al_race_graph, de_race_graph, la_race_graph, nc_race_graph, pa_race_graph,
+                    sc_race_graph, ut_race_graph, wa_race_graph,
+                    ncol = 4, nrow = 2, common.legend = TRUE, legend = "bottom")
+race_figure
+ggsave(".../nhgis_ppdd_20210428_12-2_tract/figs/race_figure.pdf", width = 9.54, height = 5.81)
