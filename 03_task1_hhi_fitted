@@ -1,0 +1,10 @@
+# Goal for Task 01 -->gam (error ~ s(hh)) --> use fitted(m) as error --> produce hh plot only
+# Only make modifications on the following parts.
+# Others remain unchanged!!!
+
+
+# Fit models and make plots -----------------------------------------------
+
+fit_model = function(d) {
+    gam (error ~ s(hh),data=d)
+    }
