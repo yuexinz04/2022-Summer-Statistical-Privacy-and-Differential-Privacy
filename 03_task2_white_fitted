@@ -7,3 +7,5 @@
 fit_model = function(d) {
     gam(error ~ s(white), data = d)
     }
+    
+r^2 == 0.05341763 gam (error ~ s(white))
