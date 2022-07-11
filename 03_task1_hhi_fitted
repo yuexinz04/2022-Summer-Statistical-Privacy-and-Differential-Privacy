@@ -1,3 +1,4 @@
+
 # Goal for Task 01 -->gam (error ~ s(hh)) --> use fitted(m) as error --> produce hh plot only
 # Only make modifications on the following parts.
 # Others remain unchanged!!!
@@ -10,3 +11,5 @@ fit_model = function(d) {
     }
 
 r^2 == 0.07213481 gam (error ~ s(hh))
+
+
