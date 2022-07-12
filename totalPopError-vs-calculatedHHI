@@ -71,7 +71,7 @@ scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3),
                 oob=squish) +
   theme(text = element_text(family = "Times New Roman"))
   
-  #-Plotting State (Function)------------------------------------------------------------------------------------
+#-Plotting State (Function)------------------------------------------------------------------------------------
 
 plot_statePop_vs_hhi = function(stateNum, stateName) {
   
