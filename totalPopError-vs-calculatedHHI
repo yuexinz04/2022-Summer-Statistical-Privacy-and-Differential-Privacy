@@ -83,6 +83,7 @@ plot_statePop_vs_hhi = function(stateNum, stateName) {
     geom_point(alpha = .6) + labs(x = "HHI", y = "Error (people)", color="Population") +
     theme_bw() +
     theme(text = element_text(family = "Times New Roman")) +
+    ggtitle(title) +
     geom_hline(yintercept=0, lty="dashed") + 
     scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
     scale_color_viridis_c(option="A", begin = .3) +
