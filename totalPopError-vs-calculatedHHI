@@ -1,13 +1,22 @@
-#--Set Up----------------------------------------------------------------
+#--Set Up-------------------------------------------------------------------------------------------------------------
 setwd("~/R Projects/ArestyDP/nhgis_ppdd_20210428_12-2_tract")
 library(tidyverse)
 library(gam)
 library(tibble)
 library(dplyr)
+library(ggplot2)
+library(ggpubr)
+library(scales)
+library(redist)
+library(patchwork)
+library(sf)
+library(mgcv)
+theme_set(theme_pubr())
 
-alltractdata_122 <- read.csv("nhgis_ppdd_20210428_12-2_tract.csv")
+#--Retrieve Dataset--------------------------------------------------------------------------------------------------
+alltractdata_122 <- read.csv("nhgis_ppdd_20210428_12-2_tract.csv") 
 
-#--Calculating Herfindahl-Hirschman Index -----------------------------------------------
+#--Calculating Herfindahl-Hirschman Index ---------------------------------------------------------------------------
 tract_hhisf <- alltractdata_122 %>%
   select(gisjoin, state, H72001_sf, H72002_sf, H72003_sf, H72004_sf, H72005_sf, H72006_sf, H72007_sf, H72008_sf, H72009_sf) %>%
   rename(tractcode = gisjoin, state = state, popTotal_sf = H72001_sf, popONErace_sf = H72002_sf, popWhite_sf = H72003_sf, popBAA_sf = H72004_sf, popAIAN_sf = H72005_sf , popAsian_sf = H72006_sf, popNHOPI_sf = H72007_sf, popOther_sf = H72008_sf, popTwoOrMore_sf = H72009_sf) %>%
@@ -35,7 +44,7 @@ tract_hhidp <- alltractdata_122 %>%
 
 tract_hhi <- left_join(tract_hhisf, tract_hhidp, by='tractcode')
 
-#--Calculating totalPopulationError--------------------------------------------------------------
+#--Calculating totalPopulationError-------------------------------------------------------------------------------
 tractPopError <- alltractdata_122 %>%
   select(gisjoin, state, H72001_dp, H72001_sf) %>% 
   rename(tractcode = gisjoin, popTotal_dp = H72001_dp, popTotal_sf = H72001_sf) %>% 
@@ -44,7 +53,7 @@ tractPopError <- alltractdata_122 %>%
 head(tractPopError)
 head(tract_hhi)
 
-#--Plotting totalPopulationError vs HHI Ground Truth---------------------------------------------
+#--Plotting totalPopulationError vs HHI Ground Truth--------------------------------------------------------------
 df <- data.frame(state = tractPopError$state, populationError = tractPopError$totalPopError, hhiIndex = tract_hhi$hhi_sf, totalPopulation = tractPopError$popTotal_sf)
 head(df)
 
@@ -62,26 +71,25 @@ scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3),
                 oob=squish) +
   theme(text = element_text(family = "Times New Roman"))
   
-  #-Plotting State (Function)-------------------------------------------------------------------
+  #-Plotting State (Function)------------------------------------------------------------------------------------
 
 plot_statePop_vs_hhi = function(stateNum, stateName) {
   
   statedf <- subset(df, state == stateNum)
   title <- paste(stateName, "Population Count Error")
   
-  ggplot(data = statedf, aes(x=hhiIndex, y=populationError, color = totalPopulation)) + 
-    geom_point(alpha = 0.8, size = 1) +  
+  
+  ggplot(data = statedf, aes(x=hhiIndex, y=populationError, color = totalPopulation)) +
+    geom_point(alpha = .6) + labs(x = "HHI", y = "Error (people)", color="Population") +
+    theme_bw() +
+    theme(text = element_text(family = "Times New Roman")) +
     geom_hline(yintercept=0, lty="dashed") + 
-    scale_color_gradient(low="orange", high="red4") + 
-    geom_smooth(se = FALSE, color = "black", size = 0.65) + 
-    ggtitle(title) + 
-    labs(x = "Herfindahl Index", y= "Total Population Count Error", color="Total Tract Population") + 
-    theme_bw() + 
-    scale_x_continuous(labels = percent, limits = c(0.2, 1), breaks = seq(0.2, 1.0, 0.2)) + 
-    scale_y_continuous(limits=c(-100, 100), expand=expansion(mult=0)) +
-    scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3),
-                    oob=squish) +
-    theme(text = element_text(family = "Times New Roman"))
+    scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
+    scale_color_viridis_c(option="A", begin = .3) +
+    scale_x_continuous(labels=percent,expand=expansion(mult=0)) +
+    scale_y_continuous(limits=c(-80, 80), expand=expansion(mult=0)) + 
+    geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222", size = 1.5, se = FALSE, alpha = 0.5) 
+  
 }
 
 #Example 1 - Alabama 
