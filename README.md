@@ -9,17 +9,21 @@ Section: Fit models and make plots --> modify "X" in the gam fit model
 Section: Plotting functions -->compare plots using fitted(m) VS the true difference(error= pop_das12 - pop_orig) as error
 
 **Task List:**
- 1. gam (error ~ s(hh)) --> use fitted(m) as error --> produce hh plot only
+ 1. gam (error ~ s(hh)) --> use fitted(m) as error --> produce hh plot only  
+ Rsq=0.07213481
 
- 2. gam (error ~ s(white)) --> use fitted(m) as error -> produce non white plot only
+ 2. gam (error ~ s(white)) --> use fitted(m) as error -> produce non white plot only  
+ Rsq=0.05341763
 
  3. gam(error~t2(turnout, dem, log(dens))) -->use fitted(m) as error --> produce both hh and non white plot
+ Rsq=0.09072936
 
  4. gam (error ~ s(hh)) --> use true diff as error --> produce hh plot only
 
  5. gam (error ~ s(white)) --> use true diff as error -> produce non white plot only
 
- 6. gam(error ~ t2(turnout, dem, log(dens)) + s(white) + s(hh), data = d) --> use true diff as error
+ 6. gam(error ~ t2(turnout, dem, log(dens)) + s(white) + s(hh), data = d) --> use true diff as error  
+ Rsq=0.1090283 
  
  
  
