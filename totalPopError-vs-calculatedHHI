@@ -98,3 +98,20 @@ plot_statePop_vs_hhi("1", "Alabama")
 
 #Example 2 - Pennsylvania 
 plot_statePop_vs_hhi("42", "Pennsylvania")
+
+
+#--Plotting 8 Graphs from Kenny et al. Paper--------------------------------------------------------------------------------
+
+pa_race_graph <- plot_statePop_vs_hhi("42", "Pennsylvania")
+nc_race_graph <- plot_statePop_vs_hhi("37", "North Carolina")
+sc_race_graph <- plot_statePop_vs_hhi("45", "South Carolina")
+la_race_graph <- plot_statePop_vs_hhi("22", "Louisiana")
+al_race_graph <- plot_statePop_vs_hhi("1", "Alabama")
+de_race_graph <- plot_statePop_vs_hhi("10", "Delaware")
+ut_race_graph <- plot_statePop_vs_hhi("49", "Utah")
+wa_race_graph <- plot_statePop_vs_hhi("53", "Washington")
+
+race_figure <- ggarrange(pa_race_graph, nc_race_graph, sc_race_graph, la_race_graph, al_race_graph,
+                         de_race_graph, ut_race_graph, wa_race_graph,
+                         ncol = 4, nrow = 2, common.legend = TRUE, legend = "bottom")
+race_figure
