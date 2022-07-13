@@ -1,0 +1,63 @@
+#--Set Up----------------------------------------------------------------
+setwd("~/R Projects/ArestyDP/nhgis_ppdd_20210428_12-2_tract")
+library(tidyverse)
+library(gam)
+library(tibble)
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+library(scales)
+library(redist)
+library(patchwork)
+library(sf)
+library(mgcv)
+theme_set(theme_pubr())
+
+alltractdata_122 <- read.csv("nhgis_ppdd_20210428_12-2_tract.csv")
+
+
+#--Calculating Percent Non-White -----------------------------------------------
+
+percentNonWhitedf <- alltractdata_122 %>%
+  select(gisjoin, H72001_dp, H72003_dp, H72001_sf, H74001_sf) %>%
+  rename(countycode = gisjoin, dp_total = H72001_dp, dp_white = H72003_dp, 
+         sf_total = H72001_sf, sf_old = H74001_sf) %>%
+  mutate(percent_nonwhite = 100 * (dp_total - dp_white) / dp_total,
+         error = dp_total - sf_total, percent_old = 100 * (sf_old/sf_total))
+
+#--Calculating totalPopulationError--------------------------------------------------------------
+tractPopError <- alltractdata_122 %>%
+  select(gisjoin, state, H72001_dp, H72001_sf) %>% 
+  rename(tractcode = gisjoin, popTotal_dp = H72001_dp, popTotal_sf = H72001_sf) %>% 
+  mutate(totalPopError = popTotal_dp - popTotal_sf)
+
+
+#--Creating Data Frame----------------------------------------------------------
+df <- data.frame(state = tractPopError$state, populationError = tractPopError$totalPopError, percentNonWhite = percentNonWhitedf$percent_nonwhite, totalPopulation = tractPopError$popTotal_sf)
+head(df)
+
+#-Plotting Function--------------------------------------------------
+
+plot_statePop_vs_percentNonWhite = function(stateNum, stateName) {
+  
+  statedf <- subset(df, state == stateNum)
+  title <- paste(stateName, "Population Count Error")
+  
+  
+  ggplot(data = statedf, aes(x = percentNonWhite, y = populationError, color = totalPopulation)) +
+    geom_point(alpha = .6) + labs(x = "Percent Non-White", y = "Error (people)", color="Population") +
+    theme_bw() +
+    theme(text = element_text(family = "Times New Roman")) +
+    ggtitle(title) +
+    geom_hline(yintercept=0, lty="dashed") + 
+    scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
+    scale_color_viridis_c(option="A", begin = .3) +
+    scale_x_continuous(labels=percent,expand=expansion(mult=0)) +
+    scale_y_continuous(limits=c(-80, 80), expand=expansion(mult=0)) + 
+    geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222", size = 1.5, se = FALSE, alpha = 0.5) 
+  
+}
+
+#--Example 1: Plotting Alabama--------------------------------------------------------------------
+
+plot_statePop_vs_percentNonWhite("1", "Alabama")
