@@ -61,3 +61,19 @@ plot_statePop_vs_percentNonWhite = function(stateNum, stateName) {
 #--Example 1: Plotting Alabama--------------------------------------------------------------------
 
 plot_statePop_vs_percentNonWhite("1", "Alabama")
+
+#--Plotting 8 States from Kenny et al. Paper------------------------------------------------------------------- 
+
+pa_race_graph <- plot_statePop_vs_percentNonWhite("42", "Pennsylvania")
+nc_race_graph <- plot_statePop_vs_percentNonWhite("37", "North Carolina")
+sc_race_graph <- plot_statePop_vs_percentNonWhite("45", "South Carolina")
+la_race_graph <- plot_statePop_vs_percentNonWhite("22", "Louisiana")
+al_race_graph <- plot_statePop_vs_percentNonWhite("1", "Alabama")
+de_race_graph <- plot_statePop_vs_percentNonWhite("10", "Delaware")
+ut_race_graph <- plot_statePop_vs_percentNonWhite("49", "Utah")
+wa_race_graph <- plot_statePop_vs_percentNonWhite("53", "Washington")
+
+race_figure <- ggarrange(pa_race_graph, nc_race_graph, sc_race_graph, la_race_graph, al_race_graph,
+                         de_race_graph, ut_race_graph, wa_race_graph,
+                         ncol = 4, nrow = 2, common.legend = TRUE, legend = "bottom")
+race_figure
