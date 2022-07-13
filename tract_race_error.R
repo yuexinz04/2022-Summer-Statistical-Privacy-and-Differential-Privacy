@@ -14,12 +14,11 @@ tract_data = read_csv(".../nhgis_ppdd_20210428_12-2_tract/nhgis_ppdd_20210428_12
 
 
 
-
 race_df <- tract_data %>%
   select(gisjoin, H72001_dp, H72003_dp, H72001_sf, H74001_sf) %>%
-  rename(countycode = gisjoin, dp_total = H72001_dp, dp_white = H72003_dp, 
-         sf_total = H72001_sf, sf_old = H74001_sf) %>%
-  mutate(percent_nonwhite = 100 * (dp_total - dp_white) / dp_total,
+  rename(countycode = gisjoin, dp_total = H72001_dp, sf_total = H72001_sf, 
+         sf_white = H72003_sf, sf_old = H74001_sf) %>%
+  mutate(percent_nonwhite = 100 * (sf_total - sf_white) / sf_total,
          error = dp_total - sf_total, percent_old = 100 * (sf_old/sf_total))
 
 
