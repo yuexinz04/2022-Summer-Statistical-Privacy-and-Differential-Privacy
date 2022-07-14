@@ -8,9 +8,9 @@ library(sf)
 library(mgcv)
 theme_set(theme_pubr())
 
-source("/Users/leahghazali/Desktop/dataverse_files/R/00_custom_functions.R")
+source(".../dataverse_files/R/00_custom_functions.R")
 
-tract_data = read_csv("/Users/leahghazali/Desktop/nhgis_ppdd_20210428_12-2_tract/nhgis_ppdd_20210428_12-2_tract.csv")
+tract_data = read_csv(".../nhgis_ppdd_20210428_12-2_tract/nhgis_ppdd_20210428_12-2_tract.csv")
 
 hhi_df <- tract_data %>%
   select(gisjoin, state, H72001_dp, H72001_sf, H72003_sf, H72004_sf, H72005_sf,
@@ -58,7 +58,6 @@ plot_statePop_vs_hhi = function(stateNum, stateName) {
   
 }
 
-#--Plotting 8 Graphs from Kenny et al. Paper--------------------------------------------------------------------------------
 
 pa_hhi_graph <- plot_statePop_vs_hhi("42", "Pennsylvania")
 pa_hhi_graph
@@ -89,6 +88,6 @@ hhi_figure <- ggarrange(pa_hhi_graph, nc_hhi_graph, sc_hhi_graph, la_hhi_graph, 
                          de_hhi_graph, ut_hhi_graph, wa_hhi_graph,
                          ncol = 4, nrow = 2, common.legend = TRUE, legend = "bottom")
 hhi_figure
-ggsave("/Users/leahghazali/Desktop/nhgis_ppdd_20210428_12-2_tract/figs/hhi_figure.pdf", width = 9.54, height = 5.81)
+ggsave(".../nhgis_ppdd_20210428_12-2_tract/figs/hhi_figure.pdf", width = 9.54, height = 5.81)
 
 
