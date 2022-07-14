@@ -32,10 +32,12 @@ nrow(alltractdata_122)
 #--Simulating Gaussian Noise-----------------------------------------------------------------
 
 gaussianError <- rnorm(74002, mean = 0, sd = 139.93)
+prodGaussianError <- rnorm(74002, mean = 0, sd = 2.47)
 
 #--Creating Dataframe-------------------------------------------------------------------------
 
 df <- data.frame(HHI = tract_hhisf$hhi_sf, simulatedError = gaussianError, state = alltractdata_122$state)
+proddf <- data.frame(HHI = tract_hhisf$hhi_sf, simulatedError = prodGaussianError, state = alltractdata_122$state)
 
 #--Graphing Gaussian Noise vs. HHI------------------------------------------------------------
 
@@ -72,3 +74,39 @@ wa_graph <- plot_simError_vs_hhi("53", "Washington")
 
 race_figure <- ggarrange(pa_graph, nc_graph, sc_graph, la_graph, al_graph, de_graph, ut_graph, wa_graph, ncol = 4, nrow = 2, common.legend = TRUE, legend = "bottom")
 race_figure
+
+
+#--Graphing Gaussian Noise vs. HHI ***FOR PRODUCTION ------------------------------------------------------------
+
+plot_prod_simError_vs_hhi = function(stateNum, stateName) {
+  
+  statedf <- subset(proddf, state == stateNum)
+  title <- stateName
+  
+  
+  ggplot(data = statedf, aes(x=HHI, y=simulatedError)) +
+    geom_point(alpha = .6, color = "blue") + labs(x = "HHI", y = "Error (people)") +
+    theme_bw() +
+    theme(text = element_text(family = "Times New Roman")) +
+    ggtitle(title) +
+    geom_hline(yintercept=0, lty="dashed") + 
+    scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
+    scale_color_viridis_c(option="A", begin = .3) + 
+    scale_x_continuous(labels=percent,expand=expansion(mult=0)) +
+    scale_y_continuous(limits=c(-10, 10), expand=expansion(mult=0)) +
+    geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222", size = 1.5, se = FALSE, alpha = 0.5)
+  
+}
+
+#--Producing 8 State Plots from Kenny et al. Paper-------------------------------------------
+pa_prod_graph <- plot_prod_simError_vs_hhi("42", "Pennsylvania")
+nc_prod_graph <- plot_prod_simError_vs_hhi("37", "North Carolina")
+sc_prod_graph <- plot_prod_simError_vs_hhi("45", "South Carolina")
+la_prod_graph <- plot_prod_simError_vs_hhi("22", "Louisiana")
+al_prod_graph <- plot_prod_simError_vs_hhi("1", "Alabama")
+de_prod_graph <- plot_prod_simError_vs_hhi("10", "Delaware")
+ut_prod_graph <- plot_prod_simError_vs_hhi("49", "Utah")
+wa_prod_graph <- plot_prod_simError_vs_hhi("53", "Washington")
+
+race_prod_figure <- ggarrange(pa_prod_graph, nc_prod_graph, sc_prod_graph, la_prod_graph, al_prod_graph, de_prod_graph, ut_prod_graph, wa_prod_graph, ncol = 4, nrow = 2, common.legend = TRUE, legend = "bottom")
+race_prod_figure
