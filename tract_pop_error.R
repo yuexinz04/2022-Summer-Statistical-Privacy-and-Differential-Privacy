@@ -32,7 +32,7 @@ plot_statePop_vs_error = function(stateNum, stateName) {
     geom_hline(yintercept=0, lty="dashed") + 
     scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
     scale_color_viridis_c(option="A", begin = .3) +
-    scale_x_continuous(labels=comma,expand=expansion(mult=0)) +
+    scale_x_continuous(limits=c(0, 10000), labels=comma,expand=expansion(mult=0)) +
     scale_y_continuous(limits=c(-80, 80), expand=expansion(mult=0)) + 
     geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222", 
               size = .65, se = FALSE, alpha = 0.5)
