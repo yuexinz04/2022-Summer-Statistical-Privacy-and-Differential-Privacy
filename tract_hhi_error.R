@@ -27,7 +27,6 @@ hhi_df <- tract_data %>%
   mutate (hhi = s_white_sf^2+s_BAA_sf^2+s_AIAN_sf^2+s_Asian_sf^2+s_NHOPI_sf^2+s_other_sf^2,.after=countycode,
           error = dp_total - sf_total)
 
-head(hhi_df)
 
 
 plot_statePop_vs_hhi = function(stateNum, stateName) {
