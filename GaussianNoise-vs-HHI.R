@@ -42,11 +42,11 @@ df <- data.frame(HHI = tract_hhisf$hhi_sf, simulatedError = gaussianError, state
 plot_simError_vs_hhi = function(stateNum, stateName) {
   
   statedf <- subset(df, state == stateNum)
-  title <- paste(stateName, "Population Count Simulated Error")
+  title <- stateName
   
   
   ggplot(data = statedf, aes(x=HHI, y=simulatedError)) +
-    geom_point(alpha = .6) + labs(x = "HHI", y = "Error (people)") +
+    geom_point(alpha = .6, color = "blue") + labs(x = "HHI", y = "Error (people)") +
     theme_bw() +
     theme(text = element_text(family = "Times New Roman")) +
     ggtitle(title) +
@@ -62,7 +62,6 @@ plot_simError_vs_hhi = function(stateNum, stateName) {
 
 #--Producing 8 State Plots from Kenny et al. Paper-------------------------------------------
 pa_graph <- plot_simError_vs_hhi("42", "Pennsylvania")
-pa_graph
 nc_graph <- plot_simError_vs_hhi("37", "North Carolina")
 sc_graph <- plot_simError_vs_hhi("45", "South Carolina")
 la_graph <- plot_simError_vs_hhi("22", "Louisiana")
