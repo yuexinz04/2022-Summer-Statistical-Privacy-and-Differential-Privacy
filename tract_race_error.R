@@ -14,11 +14,11 @@ tract_data = read_csv(".../nhgis_ppdd_20210428_12-2_tract/nhgis_ppdd_20210428_12
 
 
 race_df <- tract_data %>%
-  select(gisjoin, state, H72001_dp, H72001_sf, H72003_sf, H74001_sf) %>%
+  select(gisjoin, state, H72001_dp, H72001_sf, H72003_sf) %>%
   rename(countycode = gisjoin,  dp_total = H72001_dp, sf_total = H72001_sf, 
-         sf_white = H72003_sf, sf_old = H74001_sf) %>%
+         sf_white = H72003_sf) %>%
   mutate(percent_nonwhite = (sf_total - sf_white) / sf_total,
-         error = dp_total - sf_total, percent_old = 100 * (sf_old/sf_total))
+         error = dp_total - sf_total)
 
 
 plot_statePop_vs_percentNonWhite = function(stateNum, stateName) {
