@@ -51,7 +51,8 @@ plot_statePop_vs_hhi = function(stateNum, stateName) {
     scale_x_continuous(labels=percent,expand=expansion(mult=0)) +
     scale_y_continuous(limits=c(-120, 120), expand=expansion(mult=0)) + 
     geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222", 
-              size = .65, se = FALSE, alpha = 0.5) 
+              size = .65, se = FALSE, alpha = 0.5) +
+    theme_ppmf()
   
 }
 
