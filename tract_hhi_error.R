@@ -51,7 +51,7 @@ plot_statePop_vs_hhi = function(stateNum, stateName) {
     scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
     scale_color_viridis_c(option="A", begin = .3) +
     scale_x_continuous(labels=percent,expand=expansion(mult=0)) +
-    scale_y_continuous(limits=c(-80, 80), expand=expansion(mult=0)) + 
+    scale_y_continuous(limits=c(-120, 120), expand=expansion(mult=0)) + 
     geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222", 
               size = .65, se = FALSE, alpha = 0.5) 
   
