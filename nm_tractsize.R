@@ -9,6 +9,8 @@ library(ggplot2)
 library(ggpubr)
 library(scales)
 library(RColorBrewer)
+library(mgcv)
+
 
 #--Prepare Data Frame-------------------------------------------------
 prepare_df <- alltractdata_122 %>%
@@ -45,7 +47,7 @@ pro_nm_tractsize_plotdf <- nm_tractsize_plotdf %>%
   mutate(simulatedError = prodGaussianError)
 
 #--Graphing 2021 April Noisy Measurement vs. Tract Size-----------------------------
-plot_simError_vs_hhi = function(stateNum, stateName) {
+plot_simError_vs_tractsize = function(stateNum, stateName) {
   
   statedf <- subset(apr_nm_tractsize_plotdf, state == stateNum)
   title <- stateName
@@ -53,32 +55,34 @@ plot_simError_vs_hhi = function(stateNum, stateName) {
   ggplot(data = statedf, aes(x=tract_size, y=simulatedError,color=largest_race)) +
     geom_point(alpha = .5) + 
     theme(axis.title = element_text(size = 8))+
-    geom_smooth(method = "loess",size=1.5, se=F) +
+    geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222", 
+              size = .65, se = FALSE, alpha = 0.5)+
     labs(x = "Tract Total Population", y = "Simulated Noisy Meansurement 2021 April Setting",
          color="Largest Racial Group") +
     theme_bw() +
     theme(text = element_text(family = "Times New Roman")) +
     ggtitle(title) +
     geom_hline(yintercept=0, lty="dashed") + 
+    scale_x_continuous(limits=c(0, 18000), labels=comma,expand=expansion(mult=0)) +
     scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
-    scale_y_continuous(limits=c(-700, 700), expand=expansion(mult=0),breaks = seq(-700, 700, 200))
+    scale_y_continuous(limits=c(-600, 600), expand=expansion(mult=0),breaks = seq(-700, 700, 200))
 }
 
 #--Producing 8 State Plots from Kenny et al. Paper (2021 April NM)-------------------------------------------
-pa_graph <- plot_simError_vs_hhi("42", "Pennsylvania")
-nc_graph <- plot_simError_vs_hhi("37", "North Carolina")
-sc_graph <- plot_simError_vs_hhi("45", "South Carolina")
-la_graph <- plot_simError_vs_hhi("22", "Louisiana")
-al_graph <- plot_simError_vs_hhi("1", "Alabama")
-de_graph <- plot_simError_vs_hhi("10", "Delaware")
-ut_graph <- plot_simError_vs_hhi("49", "Utah")
-wa_graph <- plot_simError_vs_hhi("53", "Washington")
+pa_graph <- plot_simError_vs_tractsize("42", "Pennsylvania")
+nc_graph <- plot_simError_vs_tractsize("37", "North Carolina")
+sc_graph <- plot_simError_vs_tractsize("45", "South Carolina")
+la_graph <- plot_simError_vs_tractsize("22", "Louisiana")
+al_graph <- plot_simError_vs_tractsize("1", "Alabama")
+de_graph <- plot_simError_vs_tractsize("10", "Delaware")
+ut_graph <- plot_simError_vs_tractsize("49", "Utah")
+wa_graph <- plot_simError_vs_tractsize("53", "Washington")
 
 apr_nm_ts_figure <- ggarrange(pa_graph, nc_graph, sc_graph, la_graph, al_graph, de_graph, ut_graph, wa_graph, ncol = 4, nrow = 2, common.legend = TRUE, legend = "bottom")
 apr_nm_ts_figure
 
 #--Graphing Production Setting Noisy Measurement  vs. Tract Size --------
-plot_prod_simError_vs_hhi = function(stateNum, stateName) {
+plot_prod_simError_vs_tractsize = function(stateNum, stateName) {
   
   statedf <- subset(pro_nm_tractsize_plotdf, state == stateNum)
   title <- stateName
@@ -86,7 +90,8 @@ plot_prod_simError_vs_hhi = function(stateNum, stateName) {
   ggplot(data = statedf, aes(x=tract_size, y=simulatedError,color=largest_race)) +
     geom_point(alpha = .5) + 
     theme(axis.title = element_text(size = 8))+              
-    geom_smooth(method = "loess",size=1.5, se=F) +
+    geom_line(stat="smooth", method = gam, formula = y~s(x, bs = "cs"), color = "#222222", 
+              size = .65, se = FALSE, alpha = 0.5)+
     labs(x = "Tract Total Population", y = "Production Setting Noisy Meansurement ",
          color="Largest Racial Group") +
     theme_bw() +
@@ -94,18 +99,19 @@ plot_prod_simError_vs_hhi = function(stateNum, stateName) {
     ggtitle(title) +
     geom_hline(yintercept=0, lty="dashed") + 
     scale_size_area(max_size=1.0, labels=comma, limits=c(0, 20e3), oob=squish) + 
-    scale_y_continuous(limits=c(-15, 15), expand=expansion(mult=0)) 
+    scale_x_continuous(limits=c(0, 18000), labels=comma,expand=expansion(mult=0)) +
+    scale_y_continuous(limits=c(-12, 12), expand=expansion(mult=0)) 
   }
 
 #--Producing 8 State Plots from Kenny et al. Paper (Production Setting NM)-----
-pa_prod_graph <- plot_prod_simError_vs_hhi("42", "Pennsylvania")
-nc_prod_graph <- plot_prod_simError_vs_hhi("37", "North Carolina")
-sc_prod_graph <- plot_prod_simError_vs_hhi("45", "South Carolina")
-la_prod_graph <- plot_prod_simError_vs_hhi("22", "Louisiana")
-al_prod_graph <- plot_prod_simError_vs_hhi("1", "Alabama")
-de_prod_graph <- plot_prod_simError_vs_hhi("10", "Delaware")
-ut_prod_graph <- plot_prod_simError_vs_hhi("49", "Utah")
-wa_prod_graph <- plot_prod_simError_vs_hhi("53", "Washington")
+pa_prod_graph <- plot_prod_simError_vs_tractsize("42", "Pennsylvania")
+nc_prod_graph <- plot_prod_simError_vs_tractsize("37", "North Carolina")
+sc_prod_graph <- plot_prod_simError_vs_tractsize("45", "South Carolina")
+la_prod_graph <- plot_prod_simError_vs_tractsize("22", "Louisiana")
+al_prod_graph <- plot_prod_simError_vs_tractsize("1", "Alabama")
+de_prod_graph <- plot_prod_simError_vs_tractsize("10", "Delaware")
+ut_prod_graph <- plot_prod_simError_vs_tractsize("49", "Utah")
+wa_prod_graph <- plot_prod_simError_vs_tractsize("53", "Washington")
 
 pro_nm_ts_figure <- ggarrange(pa_prod_graph, nc_prod_graph, sc_prod_graph, la_prod_graph, al_prod_graph, de_prod_graph, ut_prod_graph, wa_prod_graph, ncol = 4, nrow = 2, common.legend = TRUE, legend = "bottom")
 pro_nm_ts_figure
