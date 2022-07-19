@@ -40,7 +40,15 @@ geom_smooth(stat = "smooth",method = "gam", formula =y~s(x, bs = "cs"), color = 
 **se=TRUE, level=0.95**,fill='lightblue',)+
 }
 
-
+2. **Bootstrapping**  
+  
+2.1 Randomly perturb true_error(DP-SF)  
+> {perturb_error = sample(x=(trueerror_vector), size=length(trueerror_vector), replace= FALSE) } 
+   
+2.2 Use Perturb_error as Y for computing the gam fit model
+> {gam(Perturb_error ~ t2(turnout, dem, log(dens)) + s(white) + s(hh), data = d)}  
+  
+2.3 Plot "fitted perturb_error" against (non-white; HHI), with the 95% CI (Band)
 
 
  
