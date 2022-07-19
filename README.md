@@ -50,6 +50,23 @@ geom_smooth(stat = "smooth",method = "gam", formula =y~s(x, bs = "cs"), color = 
   
 2.3 Plot "fitted perturb_error" against (non-white; HHI), with the 95% CI (Band)
 
+## Add_Range  
+**Goals:**  
+On the foundation of adding a 95% CI band of the gam fit line to the original graphs, add a vertical line to each point of fitted value.  
+The range of this vertical line is as follows: (fitted_value-1.96se, fitted_value+1.96se)  
 
- 
+**Realization**  
+1. Get the se value that correspond to each fitted value  
+> {  
+B <- gam_fit_model()  
+Pred.b = Predict(B, se.fit=T) # predicted value and sd  
+Lowerbound= Pred.b$fit- 1.96pred.b$se.fit  
+Upperbound=Pred.b$fit+1.96pred.b$se.fit  
+(95 CI%)  
+}
+  
+2. Add-on to ggplot()  
+> {
+geom_errorbar(aes(ymin=fitted(m)-1.96se, ymax=fitted(m)+1.96se), width=.1)
+}
  
