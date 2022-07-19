@@ -4,11 +4,12 @@
 
 This brach "kenny-et-al-replication" contains all codes and output plots for modifying kenny et al code. 
 
+## Task 1~6
 **Goals:**  
 Section: Fit models and make plots --> modify "X" in the gam fit model  
 Section: Plotting functions -->compare plots using fitted(m) VS the true difference(error= pop_das12 - pop_orig) as error
 
-**Task List:**
+**Task List**
  1. gam (error ~ s(hh)) --> use fitted(m) as error --> produce hh plot only  
  Rsq=0.07213481
 
@@ -27,5 +28,20 @@ Section: Plotting functions -->compare plots using fitted(m) VS the true differe
  6. gam(error ~ t2(turnout, dem, log(dens)) + s(white) + s(hh), data = d) --> use true diff as error  
  Rsq=0.1090283 
  
+## Add_Band
+**Goals:**  
+i) Bring _**uncertainty quantification**_ to the gam fit **line** in original kenny et al's graphs  
+ii) _**Bootstrapping**_ tract level population error. Plot fitted perturbed error against original x-axis in original kenny et al's graphs
+
+**Task List**
+1. Modify ggplot()  --> Plot [Fitted Error Vs Non-White Percent] && [Fitted Error Vs HHI]
+> {
+geom_smooth(stat = "smooth",method = "gam", formula =y~s(x, bs = "cs"), color = "#222222",size = 0.45, alpha = 0.5,  
+**se=TRUE, level=0.95**,fill='lightblue',)+
+}
+
+
+
+
  
  
