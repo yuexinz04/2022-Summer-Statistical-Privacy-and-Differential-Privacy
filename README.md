@@ -1,3 +1,4 @@
-# 2022-Summer-Statistical-Privacy-and-Differential-Privacy
+# 2022-Statistical-Privacy-and-Differential-Privacy
+# A Critical Review On “The Impact of the U.S. Census Disclosure Avoidance System (DAS) on Redistricting and Voting Rights Analysis,” By Kenny et al.
 Mentor: Ruobin(Robin) Gong; Collaborators: Leah Ghazali, Nami Jain, Yuexin Zhang
 ![yz_poster](https://github.com/user-attachments/assets/e54c0766-ce78-429e-882c-cd3d58484fd0)
